@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<mujoco>
+    <visual>
+        <global offwidth="1280" offheight="1280"/>
+    </visual>
+    <worldbody>
+         <body name="floor" pos="0 0 -0.1">
+            <geom size="2.0 2.0 0.02" rgba="0.2 0.2 0.2 1" type="box"/>
+        </body>
+        <body name="x_arrow" pos="0.5 0 0">
+            <geom size="0.5 0.01 0.01" rgba="1 0 0 0.5" type="box"/>
+        </body>
+        <body name="y_arrow" pos="0 0.5 0">
+            <geom size="0.01 0.5 0.01" rgba="0 1 0 0.5" type="box"/>
+        </body>
+        <body name="z_arrow" pos="0 0 0.5">
+            <geom size="0.01 0.01 0.5" rgba="0 0 1 0.5" type="box"/>
+        </body>
+      
+        <body name="car" pos="0 0 0.1" mocap="true">
+            <geom size="0.2 0.1 0.02" rgba="1 1 1 0.9" type="box"/>
+
+            <body name="wheel_1" pos="0.1 0.1 0" axisangle="1 0 0 90">
+                <geom size="0.07 0.01" rgba="1 1 1 0.9" type="cylinder"/>
+            </body>
+            <body name="wheel_2" pos="-0.1 0.1 0" axisangle="1 0 0 90">
+                <geom size="0.07 0.01" rgba="1 1 1 0.9" type="cylinder"/>
+            </body>
+            <body name="wheel_3" pos="0.1 -0.1 0" axisangle="1 0 0 90">
+                <geom size="0.07 0.01" rgba="1 1 1 0.9" type="cylinder"/>
+            </body>
+            <body name="wheel_4" pos="-0.1 -0.1 0" axisangle="1 0 0 90">
+                <geom size="0.07 0.01" rgba="1 1 1 0.9" type="cylinder"/>
+            </body>
+
+            <body name="radar_1" pos="0 -0.1 0.1" axisangle="1 0 0 30">
+                <geom size="0.01 0.01 0.1" rgba="1 1 1 1" type="box"/>
+            </body>
+            <body name="radar_2" pos="0 -0.15 0.19" axisangle="1 0 0 30">
+                <geom size="0.03 0.01" rgba="1 0 0 1" type="cylinder"/>
+            </body>
+        </body>
+
+    </worldbody>
+</mujoco>
