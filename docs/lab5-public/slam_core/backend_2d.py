@@ -82,10 +82,36 @@ class WarehouseBackend:
 
         ### TODO ###
         # 2. Odometry: the motion between consecutive estimated poses vs the measured one.
-        # 3. Observations: where the estimated landmark should appear from the estimated pose vs where it did.
-        raise NotImplementedError  # your code here
-        ### END TODO ###
+        pose, next_pose = poses[:-1], poses[1:]
+        exp_dx, exp_dy, exp_theta = relative_motion(
+            pose[:, 0],
+            pose[:, 1],
+            pose[:, 2],
+            next_pose[:, 0],
+            next_pose[:, 1],
+            next_pose[:, 2]   
+        )
+        
+        r_x = (exp_dx - odom[:, 0]) / self.sigma_odom_xy
+        r_y = (exp_dy - odom[:, 1]) / self.sigma_odom_xy
+        r_theta = wrap_angle(exp_theta - odom[:, 2]) / self.sigma_odom_theta
+        r_odom = np.stack([r_x, r_y, r_theta], axis=1)
 
+        # 3. Observations: where the estimated landmark should appear from the estimated pose vs where it did.
+        obs_poses = poses[obs_pose]
+        obs_landmark = landmarks[obs_lm]
+        exp_range, exp_bearing = observe(
+            obs_poses[:, 0],
+            obs_poses[:, 1],
+            obs_poses[:, 2],
+            obs_landmark[:, 0],
+            obs_landmark[:, 1]
+        )
+
+        r_range = (exp_range - obs_z[:, 0]) / self.sigma_range
+        r_bearing = wrap_angle(exp_bearing - obs_z[:, 1]) / self.sigma_bearing
+
+        r_obs = np.stack([r_range, r_bearing], axis=1)
         return np.concatenate([r_prior, r_odom.ravel(), r_obs.ravel()])
 
     def jacobian_sparsity(self, n_poses: int, n_landmarks: int, obs_pose: np.ndarray, obs_lm: np.ndarray):
@@ -96,7 +122,23 @@ class WarehouseBackend:
         works, it is just slower."""
         ### TODO (part 3) ###
         # scipy.sparse.lil_matrix is a convenient way to fill such a matrix
-        return None  # replace by your code
+        unknowns = 3 * n_poses + 2 * n_landmarks
+        residuals = 3 + 3 * (n_poses - 1) + 2 * len(obs_lm)
+        mat = lil_matrix((residuals, unknowns))
+
+        mat[0, 0] = mat[1, 1] = mat[2, 2] = 1
+        for j in range(0, n_poses - 1):
+            mat[3 * j + 3 : 3 * (j + 1) + 3, 3 * j : 3 * (j + 1) + 3] = 1
+
+        off = 3 + 3 * (n_poses - 1)
+        land_off = 3 * n_poses
+        for k in range(len(obs_lm)):
+            obs_ind = obs_pose[k]
+            land_ind = obs_lm[k]
+            mat[2 * k + off : 2 * (k + 1) + off, 3 * obs_ind : 3 * (obs_ind + 1)] = 1
+            mat[2 * k + off : 2 * (k + 1) + off, 2 * land_ind + land_off : 2 * (land_ind + 1) + land_off] = 1
+
+        return mat
         ### END TODO ###
 
     # ---- the solve ---------------------------------------------------------------------------------
