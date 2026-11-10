@@ -9,6 +9,7 @@
 
 # Homeworks
 
+* [Calibration and image stitching](hw1-public/hw1.md)
 * [PID controllers](hw2-public/index.md)
 
 # Lectures
