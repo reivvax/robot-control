@@ -1,6 +1,5 @@
 import math
 
-from typing import Tuple
 import mujoco
 from mujoco import viewer
 import numpy as np
@@ -13,11 +12,6 @@ from pid import PID
 
 
 SIM_TIME = 5000  # Maximum simulation time in steps
-
-def rotate_2d(theta: float, x: float, y: float) -> Tuple[float, float]:
-    x_rot = np.cos(theta) * x + np.sin(theta) * y
-    y_rot = -np.sin(theta) * x + np.cos(theta) * y
-    return x_rot, y_rot
 
 
 def xquat_to_euler(xquat):
@@ -61,9 +55,9 @@ def run_single_task(model, data, view, *, wind: bool, rotated_gates: bool, rende
     yaw_angle_targets = [xquat_to_euler(xquat)[2] for xquat in yaw_quat_targets]
 
     # TODO: Design PID control
-    POSITION_PROP = 5
+    POSITION_PROP = 7
     POSITION_INT = 0
-    POSITION_DER = 5
+    POSITION_DER = 7
 
     ORIENTATION_PROP = 0.1
     ORIENTATION_INT = 0.3
@@ -117,7 +111,7 @@ def run_single_task(model, data, view, *, wind: bool, rotated_gates: bool, rende
     )
 
     # TODO: Define additional variables if needed
-    APPROACH_DISTANCE = 0.7
+    APPROACH_DISTANCE = 0.65
     waypoints = [pos_targets[0]]
     waypoint_yaws = [yaw_angle_targets[0]]
 
@@ -149,9 +143,14 @@ def run_single_task(model, data, view, *, wind: bool, rotated_gates: bool, rende
     )
 
     P, O = pids["positions"], pids["orientations"]
+
+    def rotate_2d(theta: float, x: float, y: float) -> tuple[float, float]:
+        x_rot = np.cos(theta) * x + np.sin(theta) * y
+        y_rot = -np.sin(theta) * x + np.cos(theta) * y
+        return x_rot, y_rot
     # END OF TODO
 
-    for frame in range(SIM_TIME):
+    for _ in range(SIM_TIME):
         if not view.is_running():
             return
 
