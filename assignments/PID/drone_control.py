@@ -55,11 +55,11 @@ def run_single_task(model, data, view, *, wind: bool, rotated_gates: bool, rende
     yaw_angle_targets = [xquat_to_euler(xquat)[2] for xquat in yaw_quat_targets]
 
     # TODO: Design PID control
-    POSITION_PROP = 7
+    POSITION_PROP = 6
     POSITION_INT = 0
     POSITION_DER = 7
 
-    ORIENTATION_PROP = 0.1
+    ORIENTATION_PROP = 0.15
     ORIENTATION_INT = 0.3
     ORIENTATION_DER = 0.03
 
